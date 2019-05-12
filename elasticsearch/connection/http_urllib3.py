@@ -92,12 +92,13 @@ class Urllib3HttpConnection(Connection):
         headers=None,
         ssl_context=None,
         http_compress=False,
+        cloud_id=None,
         **kwargs
     ):
-
         super(Urllib3HttpConnection, self).__init__(
-            host=host, port=port, use_ssl=use_ssl, **kwargs
+            host=host, port=port, use_ssl=use_ssl, cloud_id=cloud_id, **kwargs
         )
+
         self.http_compress = http_compress
         self.headers = urllib3.make_headers(keep_alive=True)
         if http_auth is not None:
@@ -175,11 +176,11 @@ class Urllib3HttpConnection(Connection):
                 if ssl_show_warn:
                     warnings.warn(
                         "Connecting to %s using SSL with verify_certs=False is insecure."
-                        % host
+                        % self.host
                     )
 
         self.pool = pool_class(
-            host, port=port, timeout=self.timeout, maxsize=maxsize, **kw
+            self.host, port=self.port, timeout=self.timeout, maxsize=maxsize, **kw
         )
 
     def perform_request(

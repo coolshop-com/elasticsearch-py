@@ -1,4 +1,5 @@
 import logging
+from base64 import decodestring
 
 try:
     import simplejson as json
@@ -33,6 +34,7 @@ class Connection(object):
         use_ssl=False,
         url_prefix="",
         timeout=10,
+        cloud_id=None,
         **kwargs
     ):
         """
@@ -41,15 +43,28 @@ class Connection(object):
         :arg url_prefix: optional url prefix for elasticsearch
         :arg timeout: default timeout in seconds (float, default: 10)
         """
-        scheme = kwargs.get("scheme", "http")
-        if use_ssl or scheme == "https":
-            scheme = "https"
-            use_ssl = True
-        self.use_ssl = use_ssl
+        if cloud_id:
+            cluster_name, cloud_id = cloud_id.split(":")
+            cloud_id = cloud_id.encode("utf-8")
 
-        self.host = "%s://%s:%s" % (scheme, host, port)
-        if url_prefix:
-            url_prefix = "/" + url_prefix.strip("/")
+            url, es_uuid, kibana_uuid = (
+                decodestring(cloud_id).decode("utf-8").split("$")
+            )
+
+            self.host = "%s.%s" % (es_uuid, url)
+            self.port = "9243"
+            self.use_ssl = True
+        else:
+            scheme = kwargs.get("scheme", "http")
+            if use_ssl or scheme == "https":
+                scheme = "https"
+                use_ssl = True
+            self.use_ssl = use_ssl
+
+            self.host = "%s://%s:%s" % (scheme, host, port)
+
+            if url_prefix:
+                url_prefix = "/" + url_prefix.strip("/")
         self.url_prefix = url_prefix
         self.timeout = timeout
 
