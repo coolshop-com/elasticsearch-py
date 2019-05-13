@@ -60,7 +60,7 @@ class Connection(object):
                 scheme = "https"
                 use_ssl = True
             self.use_ssl = use_ssl
-
+            self.port = port
             self.host = "%s://%s:%s" % (scheme, host, port)
 
             if url_prefix:
