@@ -278,7 +278,7 @@ class Elasticsearch(object):
         return self.transport.perform_request('PUT', _make_path(index, doc_type,
             id, '_create'), params=params, body=body)
 
-    @query_params('op_type', 'parent', 'pipeline', 'refresh', 'routing',
+    @query_params('if_seq_no', 'if_primary_term', 'op_type', 'parent', 'pipeline', 'refresh', 'routing',
         'timeout', 'timestamp', 'ttl', 'version', 'version_type',
         'wait_for_active_shards')
     def index(self, index, doc_type, body, id=None, params=None):
@@ -290,6 +290,11 @@ class Elasticsearch(object):
         :arg doc_type: The type of the document
         :arg body: The document
         :arg id: Document ID
+        :arg if_primary_term: only perform the index operation if the last
+            operation that has changed the document has the specified primary
+            term
+        :arg if_seq_no: only perform the index operation if the last operation
+            that has changed the document has the specified sequence number
         :arg op_type: Explicit operation type, default 'index', valid choices
             are: 'index', 'create'
         :arg parent: ID of the parent document
@@ -498,7 +503,7 @@ class Elasticsearch(object):
         return self.transport.perform_request('GET', _make_path(index,
             doc_type, '_mget'), params=params, body=body)
 
-    @query_params('_source', '_source_exclude', '_source_include', 'fields',
+    @query_params('_source', '_source_exclude', '_source_include', 'fields', 'if_seq_no', 'if_primary_term',
         'lang', 'parent', 'refresh', 'retry_on_conflict', 'routing', 'timeout',
         'timestamp', 'ttl', 'version', 'version_type', 'wait_for_active_shards')
     def update(self, index, doc_type, id, body=None, params=None):
@@ -517,6 +522,8 @@ class Elasticsearch(object):
         :arg _source_include: A list of fields to extract and return from the
             _source field
         :arg fields: A comma-separated list of fields to return in the response
+        :arg if_seq_no:
+        :arg if_primary_term:
         :arg lang: The script language (default: painless)
         :arg parent: ID of the parent document. Is is only used for routing and
             when for the upsert request
@@ -1036,7 +1043,7 @@ class Elasticsearch(object):
         return self.transport.perform_request('DELETE', '/_search/scroll',
             params=params, body=body)
 
-    @query_params('parent', 'refresh', 'routing', 'timeout', 'version',
+    @query_params('if_seq_no', 'if_primary_term', 'parent', 'refresh', 'routing', 'timeout', 'version',
         'version_type', 'wait_for_active_shards')
     def delete(self, index, doc_type, id, params=None):
         """
@@ -1046,6 +1053,11 @@ class Elasticsearch(object):
         :arg index: The name of the index
         :arg doc_type: The type of the document
         :arg id: The document ID
+        :arg if_primary_term: only perform the delete operation if the last
+            operation that has changed the document has the specified primary
+            term
+        :arg if_seq_no: only perform the delete operation if the last operation
+            that has changed the document has the specified sequence number
         :arg parent: ID of parent document
         :arg refresh: If `true` then refresh the effected shards to make this
             operation visible to search, if `wait_for` then wait for a refresh
@@ -1386,4 +1398,3 @@ class Elasticsearch(object):
         """
         return self.transport.perform_request('GET', _make_path(index,
             '_field_caps'), params=params, body=body)
-
